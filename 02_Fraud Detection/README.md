@@ -10,6 +10,11 @@ This guide explains how to run an Fraud detection classification model using ONN
 pip install -r requirements.txt
 ```
 
+ppc64le environment:
+```
+pip install --prefer-binary --extra-index-url=https://wheels.developerfirst.ibm.com/ppc64le/linux -r requirements.txt
+```
+
 ### Train/Generate the model:
 
 ```
