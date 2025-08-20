@@ -2,4 +2,4 @@ kagglehub>=0.3.12
 scikit-learn>=1.6.1
 skl2onnx>=1.19.1
 packaging>=23.2
-pandas>=2.3.1
+pandas>=2.2.3
