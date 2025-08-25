@@ -21,7 +21,7 @@ pip install --prefer-binary --extra-index-url=https://wheels.developerfirst.ibm.
 python train.py
 ```
 
-> Note: This will generate a model by name model.onnx and save it in the current directory.
+> Note: This will generate a model file by name model.onnx and saves it in the current directory.
 
 ## Running the example
 
@@ -29,6 +29,46 @@ To run this example, you can use the following command:
 
 ```
 make run
+```
+
+After successful completion of above command, triton inference server will run inside container on HTTP port 8000
+
+### Testing fraud detection example against Triton inference server
+Check the models loaded on the inference server
+
+```
+curl -X POST  http://0.0.0.0:8000/v2/repository/index
+```
+
+You can expect below response as an output
+```
+[{"name":"fraud","version":"1","state":"READY"}]
+```
+
+Inference the model with the fraudulent data
+```
+curl -X POST  http://0.0.0.0:8000/v2/models/fraud/infer   -H "Content-Type: application/json"   -H "Accept: application/json" -d @sample-fraud.json
+```
+
+Sample output
+```json
+{
+  "model_name":"fraud",
+  "model_version":"1",
+  "outputs":[
+  {
+    "name":"label",
+    "datatype":"INT64",
+    "shape":[1,1],
+    "data":[1]
+  },
+  {
+    "name":"probabilities",
+    "datatype":"FP32",
+    "shape":[1,2],
+    "data":[4.172325134277344e-7,0.9999995827674866]
+  }]
+}
 ```
 
 ## Run the example via Openshift AI
