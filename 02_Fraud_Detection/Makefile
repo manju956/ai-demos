@@ -20,18 +20,12 @@ generate-config: prepare
 	curl http://localhost:8000/v2/models/fraud/config | jq '.' | tee config.json
 	# stop triton server
 	podman stop triton
-	@echo "Converting json model configuration to protobuf format.."
-	# download default model_config.proto file
-	curl https://raw.githubusercontent.com/triton-inference-server/common/refs/heads/main/protobuf/model_config.proto -o ${WORKING_DIR}/model_config.proto
-	python${PYTHON_VERSION} -m pip install protobuf
-	# Genereate python protobuf file
-	@echo "Generate python protobuf file.."
-	protoc --python_out=. model_config.proto
-	python${PYTHON_VERSION} json_to_proto.py
-	@echo "Successfully generated config.pbtxt from json file.."
+	# Convert model config json file to protobuf file
+	bash json_to_proto.sh
 	cp config.pbtxt ${WORKING_DIR}/model_repository/fraud/
 	# Cleanup unwanted downlaoded files
 	rm -f ${WORKING_DIR}/model_config.proto config.json model_config_pb2.py
+
 clean:
 	rm -rf model_repository
 	rm -rf model.onnx config.pbtxt
