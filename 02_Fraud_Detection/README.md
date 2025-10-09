@@ -10,11 +10,20 @@ podman build . -t localhost/build_env
 
 Run the container to train and generate the model using ONNX runtime
 ```
-podman run --rm  --name $app -v $(pwd):/app:Z -v $(pwd)/model_repository:/app/model_repository \
+mkdir -p $(pwd)/model_repository
+podman run --rm  --name fraud_detection -v $(pwd):/app:Z -v $(pwd)/model_repository:/app/model_repository \
     --entrypoint="/bin/sh" localhost/build_env -c "cd /app && make train && make prepare"
 ```
 
 > Note: This will persist the generated model file in the path `<current_dir>/model_repository/fraud/1/model.onnx`
+
+Generate Model configuration file for fraud_detection application dynamically
+```
+make generate-config
+```
+
+< Note: This will persist the generated model config file in the path `<current_dir>/model_repository/fraud/config.pbtxt`
+
 
 ## Running the triton server with fraud detection example
 
