@@ -16,14 +16,14 @@ podman run --rm  --name fraud_detection -v $(pwd):/app:Z -v $(pwd)/model_reposit
     --entrypoint="/bin/sh" localhost/build_env -c "cd /app && make train && make prepare"
 ```
 
-> Note: This will persist the generated model file in the path `<current_dir>/model_repository/fraud/1/model.onnx`
+> Note: This will persist the generated model file in the path `<current_dir>/../model_repository/fraud_detection/1/model.onnx`
 
 Generate Model configuration file for fraud_detection application dynamically
 ```
 make generate-config
 ```
 
-< Note: This will persist the generated model config file in the path `<current_dir>/model_repository/fraud/config.pbtxt`
+< Note: This will persist the generated model config file in the path `<current_dir>/model_repository/fraud_detection/config.pbtxt`
 
 
 ## Running the triton server with fraud detection example
@@ -50,7 +50,7 @@ You can expect below response as an output
 
 Inference the model with the fraudulent data
 ```
-curl -X POST  http://0.0.0.0:8000/v2/models/fraud/infer   -H "Content-Type: application/json"   -H "Accept: application/json" -d @sample-fraud.json
+curl -X POST  http://0.0.0.0:8000/v2/models/fraud_detection/infer   -H "Content-Type: application/json"   -H "Accept: application/json" -d @sample-fraud.json
 ```
 
 Sample output

@@ -4,26 +4,70 @@ This guide explains how to run an Iris classification model using ONNX Runtime s
 
 ## Prerequisites
 
-### Install the prerequirements:
+## Train/Generate the model:
+Build ONNX build_env container image from root directory of ai-demos repo.
+```shell
+cd ..
+podman build . -t localhost/build_env
+```
+
+Run the container to train iris application and generate the model using ONNX runtime
 
 ```shell
-pip install -r requirements.txt
+mkdir -p $(pwd)/../model_repository
+podman run --rm  --name fraud_detection -v $(pwd):/app:Z -v $(pwd)/model_repository:/app/model_repository \
+    --entrypoint="/bin/sh" localhost/build_env -c "cd /app && make train && make prepare
 ```
 
-### Train/Generate the model:
+> Note: This will generate a model by name model.onnx and save it in the path `<current_dir>/../model_repository/iris/1/model.onnx`
 
-```
-python train.py
-```
+## Running the example application served from triton server
 
-> Note: This will generate a model by name model.onnx and save it in the current directory.
-
-## Running the example
-
-To run this example, you can use the following command:
+Use the model file generated in previus step to be served from triton server by mounting **model_repository** directory
 
 ```
 make run
+```
+
+After successful execution of above commands, triton inference server will run inside container on HTTP port 8000
+
+### Testing Iris classification example against Triton inference server
+Check the models loaded on the inference server
+
+```shell
+curl -X POST  http://0.0.0.0:8000/v2/repository/index
+```
+
+You can expect below response as an output
+```
+[{"name":"fraud","version":"1","state":"READY"}]
+```
+
+Inference the model with the data
+```shell
+curl -X POST -k http://0.0.0.0:8000/v2/models/iris/infer   -H "Content-Type: application/json"   -H "Accept: application/json" -d @data.json
+```
+
+Sample output
+```json
+{
+  "model_name":"iris",
+  "model_version":"1",
+  "outputs":[
+  {
+    "name":"label",
+    "datatype":"INT64",
+    "shape":[1,1],
+    "data":[0]
+  },
+  {
+    "name":"probabilities",
+    "datatype":"FP32",
+    "shape":[1,3],
+    "data":[1.0000001192092896,0.0,0.0]
+  }
+  ]
+}
 ```
 
 ## Run the example via Openshift AI
