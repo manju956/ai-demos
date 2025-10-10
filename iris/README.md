@@ -11,21 +11,29 @@ cd ..
 podman build . -t localhost/build_env
 ```
 
-Run the container to train iris application and generate the model using ONNX runtime
+Run the container to train iris application and generate the model using ONNX runtime. Execute the below command from root directory of ai-demos repo.
 
 ```shell
-mkdir -p $(pwd)/../model_repository
-podman run --rm  --name fraud_detection -v $(pwd):/app:Z -v $(pwd)/model_repository:/app/model_repository \
-    --entrypoint="/bin/sh" localhost/build_env -c "cd /app && make train && make prepare
+mkdir -p $(pwd)/model_repository
+podman run --rm  --name iris -v $(pwd)/iris:/app:Z -v $(pwd)/Makefile:/app/Makefile:Z -v $(pwd)/model_repository:/app/model_repository:Z \
+    --entrypoint="/bin/sh" localhost/build_env -c "cd /app && make train APP=iris"
 ```
 
 > Note: This will generate a model by name model.onnx and save it in the path `<current_dir>/../model_repository/iris/1/model.onnx`
+
+Generate Model configuration file for iris application dynamically
+```shell
+make generate-config APP=iris
+```
+
+< Note: This will persist the generated model config file in the path `<current_dir>/../model_repository/iris/config.pbtxt`
+
 
 ## Running the example application served from triton server
 
 Use the model file generated in previus step to be served from triton server by mounting **model_repository** directory
 
-```
+```shell
 make run
 ```
 
@@ -39,8 +47,8 @@ curl -X POST  http://0.0.0.0:8000/v2/repository/index
 ```
 
 You can expect below response as an output
-```
-[{"name":"fraud","version":"1","state":"READY"}]
+```json
+[{"name":"iris","version":"1","state":"READY"}]
 ```
 
 Inference the model with the data

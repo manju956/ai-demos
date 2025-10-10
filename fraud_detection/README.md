@@ -4,33 +4,33 @@ This guide explains how to run an Fraud detection classification model using ONN
 
 ## Train/Generate the model:
 Build ONNX build_env container image from root directory of ai-demos repo.
-```
+```shell
 cd ..
 podman build . -t localhost/build_env
 ```
 
-Run the container to train and generate the model using ONNX runtime
-```
+Run the container to train and generate the model using ONNX runtime. Execute the below command from root directory of ai-demos repo.
+```shell
 mkdir -p $(pwd)/model_repository
-podman run --rm  --name fraud_detection -v $(pwd):/app:Z -v $(pwd)/model_repository:/app/model_repository \
-    --entrypoint="/bin/sh" localhost/build_env -c "cd /app && make train && make prepare"
+podman run --rm  --name fraud_detection -v $(pwd)/fraud_detection:/app:Z -v $(pwd)/Makefile:/app/Makefile:Z -v $(pwd)/model_repository:/app/model_repository:Z \
+    --entrypoint="/bin/sh" localhost/build_env -c "cd /app && make train APP=fraud_detection"
 ```
 
 > Note: This will persist the generated model file in the path `<current_dir>/../model_repository/fraud_detection/1/model.onnx`
 
 Generate Model configuration file for fraud_detection application dynamically
-```
-make generate-config
+```shell
+make generate-config APP=fraud_detection
 ```
 
-< Note: This will persist the generated model config file in the path `<current_dir>/model_repository/fraud_detection/config.pbtxt`
+< Note: This will persist the generated model config file in the path `<current_dir>/../model_repository/fraud_detection/config.pbtxt`
 
 
 ## Running the triton server with fraud detection example
 
 Use the model file generated in previus step to be served from triton server by mounting **model_repository** directory
 
-```
+```shell
 make run
 ```
 
@@ -39,17 +39,17 @@ After successful execution of above commands, triton inference server will run i
 ### Testing fraud detection example against Triton inference server
 Check the models loaded on the inference server
 
-```
+```shell
 curl -X POST  http://0.0.0.0:8000/v2/repository/index
 ```
 
 You can expect below response as an output
-```
+```json
 [{"name":"fraud","version":"1","state":"READY"}]
 ```
 
 Inference the model with the fraudulent data
-```
+```shell
 curl -X POST  http://0.0.0.0:8000/v2/models/fraud_detection/infer   -H "Content-Type: application/json"   -H "Accept: application/json" -d @sample-fraud.json
 ```
 
