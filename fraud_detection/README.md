@@ -11,19 +11,18 @@ podman build . -t localhost/build_env
 
 Run the container to train and generate the model using ONNX runtime. Execute the below command from root directory of ai-demos repo.
 ```shell
-mkdir -p $(pwd)/model_repository
-podman run --rm  --name fraud_detection -v $(pwd)/fraud_detection:/app:Z -v $(pwd)/Makefile:/app/Makefile:Z -v $(pwd)/model_repository:/app/model_repository:Z \
-    --entrypoint="/bin/sh" localhost/build_env -c "cd /app && make train APP=fraud_detection"
+mkdir -p $(pwd)/fraud_detection/model_repository
+podman run --rm  --name fraud_detection -v $(pwd)/fraud_detection:/app:Z -v $(pwd)/Makefile:/app/Makefile:Z --entrypoint="/bin/sh" localhost/build_env -c "cd /app && make train APP=fraud_detection"
 ```
 
-> Note: This will persist the generated model file in the path `<current_dir>/../model_repository/fraud_detection/1/model.onnx`
+> Note: This will persist the generated model file in the path `ai-demos/model_repository/fraud_detection/1/model.onnx`
 
 Generate Model configuration file for fraud_detection application dynamically
 ```shell
 make generate-config APP=fraud_detection
 ```
 
-< Note: This will persist the generated model config file in the path `<current_dir>/../model_repository/fraud_detection/config.pbtxt`
+< Note: This will persist the generated model config file in the path `ai-demos/model_repository/fraud_detection/config.pbtxt`
 
 
 ## Running the triton server with fraud detection example
@@ -31,7 +30,7 @@ make generate-config APP=fraud_detection
 Use the model file generated in previus step to be served from triton server by mounting **model_repository** directory
 
 ```shell
-make run
+make run APP=fraud_detection
 ```
 
 After successful execution of above commands, triton inference server will run inside container on HTTP port 8000
