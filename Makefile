@@ -25,7 +25,7 @@ generate-config: prepare
 	bash json_to_proto.sh
 	mv config.pbtxt ${WORKING_DIR}/model_repository/${APP}/
 	# Cleanup unwanted downlaoded files
-	rm -f ${WORKING_DIR}/model_config.proto config.json model_config_pb2.py
+	rm -f ${WORKING_DIR}/model_config.proto config.json model_config_pb2.py ${WORKING_DIR}/Makefile
 
 clean:
 	rm -rf model_repository
